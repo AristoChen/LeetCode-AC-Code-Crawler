@@ -7,6 +7,7 @@ At the begining, I found a useful dependency in python called ```BeautifulSoup``
 
 #### install dependencies
 ```
+# pip install bs4
 # pip install beautifulsoup
 # pip install selenium 
 ```
