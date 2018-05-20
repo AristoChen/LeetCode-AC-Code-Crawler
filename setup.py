@@ -9,6 +9,5 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     author = 'AristoChen',
-    packages = ['LeetCode AC Code Crawler'],
-    install_requires = ['beautifulsoup', 'selenium']
+    install_requires = ['bs4', 'beautifulsoup', 'selenium']
 )
