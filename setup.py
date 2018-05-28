@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = 'LeetCode AC Code Crawler',
-    version = '0.1',
+    version = '0.2',
     description = 'Saved all accepted code on LeetCode',
     classifiers = [
         'Natural Language :: English',
