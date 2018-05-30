@@ -19,7 +19,9 @@ suffix = {"cpp": "cpp", "cplusplus": "cpp", "c++": "cpp", "c": "c",
           "csharp": "cs", "javascript": "js", "js": "js", "ruby": "rb",
           "rb": "rb", "go": "go", "golang": "go", "swift": "swift"}
 
-def save_ac_code(ac_list):
+def save_ac_code(ac_list, premium):
+    premium_count = 0
+    
     print("Do you want to over write all files if they exists? yes/no")
     overWrite = raw_input()
     
@@ -27,13 +29,23 @@ def save_ac_code(ac_list):
         print("Error:Please type 'yes' or 'no'")
         print("Do you want to over write all files if they exists? yes/no")
         overWrite = raw_input()
+    
+    
 
     for ac in reversed(ac_list):
 
+        if ac["paid_only"] == True:
+            premium_count += 1
+            if not premium:
+                print(str(ac["id"]) + ". " + ac["title"] + " is a premium problem, not able to access") 
+                continue
+        
         url = ac["url"]
         driver.get(url);
+        
+        level = ["None", "Easy", "Medium", "Hard"]
+        difficulty = level[ac["difficulty"]]
 
-        #htmlObj = driver.page_source
         soup = BeautifulSoup(driver.page_source, "html.parser")
         ac_submission = soup.find_all("strong", text="Accepted")
         
@@ -43,12 +55,28 @@ def save_ac_code(ac_list):
         
         driver.get("https://leetcode.com" + ac_submission[0].parent["href"])
         soup = BeautifulSoup(driver.page_source, "html.parser")
-        #code = soup.find_all("div", attrs={"class":"ace_line"})
-        script = soup.find("script", text=re.compile("submissionCode:"))
-        code = re.findall("submissionCode:\s*'(.+)'",script.string)[0].decode("unicode-escape")
-        suff = suffix_conversion(re.findall("getLangDisplay:\s*'(.+)'",script.string)[0])
+        
+        #get submission details
+        testcase = soup.find("span", id = "result_progress").text
+        runtime = soup.find("span", id = "result_runtime").text
+        ranking = soup.find("div", style="line-height: 1em; position: relative;")
+        if ranking:
+            ranking = ranking.text.replace("\n", " ").replace("              ", "")[15:]
+        else:
+            ranking = "Your runtime beats 00.00 % of cpp submissions."
+        submission_detail = ("/*\n" + "Submission Detail:{" +
+                             "\n    Difficulty : " + difficulty + 
+                             "\n    Acceptance Rate : " + str(ac["ac_rate"]*100)[:5] + " %" +
+                             "\n    Runtime : " + runtime + 
+                             "\n    Testcase : " + testcase + " passed" + 
+                             "\n    Ranking : " + ranking + 
+                             "\n}\n*/\n\n")
 
-
+        #get ac code
+        script = soup.find("script", text = re.compile("submissionCode:"))
+        code = re.findall("submissionCode:\s*'(.+)'", script.string)[0].decode("unicode-escape")
+        suff = suffix_conversion(re.findall("getLangDisplay:\s*'(.+)'", script.string)[0])
+        
         id = str(ac["id"])
         if len(id) < 2:
             id = "00" + id
@@ -63,15 +91,21 @@ def save_ac_code(ac_list):
         if not os.path.exists(completeName):
             print(folderName + " saved.")
             file = open(completeName, "w")
-            file.write(code)
+            file.write(submission_detail+code)
             file.close()
         elif os.path.exists(completeName) and overWrite.lower() == "yes":
             print(folderName + " over-written.")
             file = open(completeName, "w")
-            file.write(code)
+            file.write(submission_detail+code)
             file.close()
         elif os.path.exists(completeName) and overWrite.lower() == "no":
             print(folderName + " skipped.")
+    
+    if premium_count == 0 or premium:
+        print("\n" + str(len(ac_list)) + " / " + str(len(ac_list)) + " completed")
+    elif premium_count != 0 and not premium:
+        print("\n" + str(len(ac_list)-premium_count) + " / " + str(len(ac_list)) + " completed, " +
+              str(premium_count) + " / " + str(len(ac_list)) + " are premium problems, not able to access")
 
 def get_ac_problem_list():
     ac_list = []
@@ -89,6 +123,9 @@ def get_ac_problem_list():
             ac_info = {
                 "id" : ac["stat"]["question_id"],
                 "title" : ac["stat"]["question__title"],
+                "difficulty" : ac["difficulty"]["level"],
+                "ac_rate" : float(ac["stat"]["total_acs"]) / float(ac["stat"]["total_submitted"]),
+                "paid_only" : ac["paid_only"],
                 "url" : url
                 }
             ac_list.append(ac_info)
@@ -116,18 +153,27 @@ def login():
             #print "Page is ready!"
         except TimeoutException:
             print "Loading took too much time!"
-        
+
+def premium_account_check():
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    subscribe = soup.find("li", {"class" : "subscribe-btn"})
+    if subscribe:
+        return False
+    elif not subscribe:
+        return True
+
 def suffix_conversion(suff="cpp"):
     if suff in suffix:
         return suffix[suff]
 
 if __name__ == "__main__":
     login()
+    premium  = premium_account_check()
     ac_list = get_ac_problem_list()
     if len(ac_list) == 0:
         print("Sorry, it seems that you haven't solved any problem yet.")
     elif len(ac_list) > 0:
         print(str(len(ac_list)) + " AC solutions detected...")
-        save_ac_code(ac_list)
+        save_ac_code(ac_list, premium)
     
     driver.quit()
