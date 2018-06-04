@@ -8,6 +8,7 @@ import json
 import time
 import re
 import os
+import sys
 
 Account = "YOUR_ACCOUNT"
 Password = "YOUR_PASSWORD"
@@ -21,7 +22,8 @@ suffix = {"cpp": "cpp", "cplusplus": "cpp", "c++": "cpp", "c": "c",
 
 def save_ac_code(ac_list, premium):
     premium_count = 0
-    
+    processed_nums = 0
+
     print("Do you want to over write all files if they exists? yes/no")
     overWrite = raw_input()
     
@@ -30,7 +32,7 @@ def save_ac_code(ac_list, premium):
         print("Do you want to over write all files if they exists? yes/no")
         overWrite = raw_input()
     
-    
+    start_time = time.time()
 
     for ac in reversed(ac_list):
 
@@ -87,7 +89,8 @@ def save_ac_code(ac_list, premium):
         if not os.path.exists(directory + "\\" + folderName):
             os.makedirs(directory + "\\" + folderName)
         
-        completeName = os.path.join(directory + "\\" + folderName, "{}.{}".format("Solution", suff))         
+        completeName = os.path.join(directory + "\\" + folderName, "{}.{}".format("Solution", suff))
+        sys.stdout.write(" "*60 + "\r")         
         if not os.path.exists(completeName):
             print(folderName + " saved.")
             file = open(completeName, "w")
@@ -100,7 +103,15 @@ def save_ac_code(ac_list, premium):
             file.close()
         elif os.path.exists(completeName) and overWrite.lower() == "no":
             print(folderName + " skipped.")
-    
+        
+        processed_nums += 1
+
+        end_time = time.time()
+        hours, remainder = divmod(end_time-start_time, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        
+        sys.stdout.write('Processed: ' + str(processed_nums) + ' / ' + str(len(ac_list)) + ' files ( Elapsed Time : {:0>2}:{:0>2}:{:0>2} ) \r'.format(int(hours),int(minutes),int(seconds)))
+        
     if premium_count == 0 or premium:
         print("\n" + str(len(ac_list)) + " / " + str(len(ac_list)) + " completed")
     elif premium_count != 0 and not premium:
