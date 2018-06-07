@@ -85,7 +85,7 @@ def save_ac_code(ac_list, premium):
         elif len(id) < 3:
             id = "0" + id
 
-        folderName = id + ". " + ac["title"]
+        folderName = id + ". " + ac["title"].strip()
         if not os.path.exists(directory + "\\" + folderName):
             os.makedirs(directory + "\\" + folderName)
         
