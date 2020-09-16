@@ -10,10 +10,10 @@ import re
 import os
 import sys
 
-Account = "YOUR_ACCOUNT"
-Password = "YOUR_PASSWORD"
-directory = "THE_ABSOLUTE_PATH_THAT_YOU_WANT_TO_SAVE_FILES"
-driver = webdriver.Chrome("THE_ABSOLUTE_PATH_OF_CHROMEDRIVER_THAT_YOU_JUST_INSTALLED")
+username = ""
+password = ""
+outputDir = ""
+driver = ""
 
 suffix = {"cpp": "cpp", "cplusplus": "cpp", "c++": "cpp", "c": "c",
           "java": "java", "python": "py", "py": "py", "c#": "cs",
@@ -86,10 +86,11 @@ def save_ac_code(ac_list, premium):
             id = "0" + id
 
         folderName = id + ". " + ac["title"].strip()
-        if not os.path.exists(directory + "\\" + folderName):
-            os.makedirs(directory + "\\" + folderName)
+        if not os.path.exists(outputDir + "\\" + folderName):
+            os.makedirs(outputDir + "\\" + folderName)
 
-        completeName = os.path.join(directory + "\\" + folderName, "{}.{}".format("Solution", suff))
+        completeName = os.path.join(
+            outputDir + "\\" + folderName, "{}.{}".format("Solution", suff))
         sys.stdout.write(" "*60 + "\r")         
         if not os.path.exists(completeName):
             print(folderName + " saved.")
@@ -123,7 +124,6 @@ def get_ac_problem_list():
     url = "https://leetcode.com/api/problems/algorithms/"
 
     driver.get(url)
-    pageSource = driver.page_source
     jsonObj = json.loads(driver.find_element_by_tag_name("body").text)
 
     for ac in jsonObj["stat_status_pairs"]:
@@ -145,15 +145,16 @@ def get_ac_problem_list():
 def login():
     login_url = "https://leetcode.com/accounts/login/"
 
-    if Account and Password:
+    if username and password:
         driver.get(login_url)
 
-        username = driver.find_element_by_id("id_login")
-        password = driver.find_element_by_id("id_password")
+        usernameField = driver.find_element_by_id("id_login")
+        passwordField = driver.find_element_by_id("id_password")
         
-        username.send_keys(Account)
-        password.send_keys(Password)
+        usernameField.send_keys(username)
+        passwordField.send_keys(password)
 
+        time.sleep(1)
         driver.find_element_by_id("signin_btn").click()
 
         delay = 5 # seconds
@@ -176,6 +177,14 @@ def suffix_conversion(suff="cpp"):
         return suffix[suff]
 
 if __name__ == "__main__":
+    with open('C:\Users\jj251\Desktop\LeetCode-AC-Code-Crawler\conf.json', 'r') as f:
+        conf = json.loads(f.read())
+        username = conf["Username"]
+        password = conf["Password"]
+        outputDir = conf["OutputDir"]
+        driverPath = conf["ChromedriverPath"]
+        driver = webdriver.Chrome(driverPath)
+
     login()
     premium  = premium_account_check()
     ac_list = get_ac_problem_list()
