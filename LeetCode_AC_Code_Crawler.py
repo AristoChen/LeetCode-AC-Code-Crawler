@@ -32,6 +32,8 @@ def save_ac_code(ac_list, premium):
         print("Do you want to over write all files if they exists? yes/no")
         overWrite = raw_input()
 
+    level = ["None", "Easy", "Medium", "Hard"]
+
     start_time = time.time()
 
     for ac in reversed(ac_list):
@@ -43,19 +45,17 @@ def save_ac_code(ac_list, premium):
                 continue
 
         url = ac["url"]
-        driver.get(url)
-
-        level = ["None", "Easy", "Medium", "Hard"]
         difficulty = level[ac["difficulty"]]
-
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-        ac_submission = soup.find_all("strong", text="Accepted")
+        ac_submission = ""
 
         while len(ac_submission) == 0:
+            driver.get(url)
+            time.sleep(1)
             soup = BeautifulSoup(driver.page_source, "html.parser")
-            ac_submission = soup.find_all("strong", text="Accepted")
+            ac_submission = soup.find_all("a", text="Accepted")
+        print ac_submission[0]
 
-        driver.get("https://leetcode.com" + ac_submission[0].parent["href"])
+        driver.get("https://leetcode.com" + ac_submission[0]["href"])
         soup = BeautifulSoup(driver.page_source, "html.parser")
 
         #get submission details
@@ -177,7 +177,7 @@ def suffix_conversion(suff="cpp"):
         return suffix[suff]
 
 if __name__ == "__main__":
-    with open('C:\Users\jj251\Desktop\LeetCode-AC-Code-Crawler\conf.json', 'r') as f:
+    with open('conf.json', 'r') as f:
         conf = json.loads(f.read())
         username = conf["Username"]
         password = conf["Password"]
