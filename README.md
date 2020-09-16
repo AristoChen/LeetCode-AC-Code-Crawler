@@ -16,12 +16,14 @@ At the begining, I found a useful dependency in python called ```BeautifulSoup``
 This project use [Chromedriver](http://chromedriver.chromium.org/) in selenium, before running this project, you have to add the downloaded executable file to PATH enviroment variable.
 
 #### Setting
-You have to modify some of the variable in the project as shown below.
-```
-Account = "YOUR_ACCOUNT"
-Password = "YOUR_PASSWORD"
-directory = "THE_ABSOLUTE_PATH_THAT_YOU_WANT_TO_SAVE_FILES"
-driver = webdriver.Chrome("THE_ABSOLUTE_PATH_OF_CHROMEDRIVER_THAT_YOU_JUST_INSTALLED")
+You have to modify variables in `conf.json`.
+```json
+{
+    "Username": "YOUR_USERNAME",
+    "Password": "YOUR_PASSWORD",
+    "OutputDir": "THE_ABSOLUTE_PATH_THAT_YOU_WANT_TO_SAVE_FILES",
+    "ChromedriverPath": "THE_ABSOLUTE_PATH_OF_CHROMEDRIVER"
+}
 ```
 
 #### Execute
