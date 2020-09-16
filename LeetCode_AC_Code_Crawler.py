@@ -26,12 +26,12 @@ def save_ac_code(ac_list, premium):
 
     print("Do you want to over write all files if they exists? yes/no")
     overWrite = raw_input()
-    
+
     while overWrite.lower() != "yes" and overWrite.lower() != "no":
         print("Error:Please type 'yes' or 'no'")
         print("Do you want to over write all files if they exists? yes/no")
         overWrite = raw_input()
-    
+
     start_time = time.time()
 
     for ac in reversed(ac_list):
@@ -41,23 +41,23 @@ def save_ac_code(ac_list, premium):
             if not premium:
                 print(str(ac["id"]) + ". " + ac["title"] + " is a premium problem, not able to access") 
                 continue
-        
+
         url = ac["url"]
-        driver.get(url);
-        
+        driver.get(url)
+
         level = ["None", "Easy", "Medium", "Hard"]
         difficulty = level[ac["difficulty"]]
 
         soup = BeautifulSoup(driver.page_source, "html.parser")
         ac_submission = soup.find_all("strong", text="Accepted")
-        
+
         while len(ac_submission) == 0:
             soup = BeautifulSoup(driver.page_source, "html.parser")
             ac_submission = soup.find_all("strong", text="Accepted")
-        
+
         driver.get("https://leetcode.com" + ac_submission[0].parent["href"])
         soup = BeautifulSoup(driver.page_source, "html.parser")
-        
+
         #get submission details
         testcase = soup.find("span", id = "result_progress").text
         runtime = soup.find("span", id = "result_runtime").text
@@ -78,7 +78,7 @@ def save_ac_code(ac_list, premium):
         script = soup.find("script", text = re.compile("submissionCode:"))
         code = re.findall("submissionCode:\s*'(.+)'", script.string)[0].decode("unicode-escape")
         suff = suffix_conversion(re.findall("getLangDisplay:\s*'(.+)'", script.string)[0])
-        
+
         id = str(ac["id"])
         if len(id) < 2:
             id = "00" + id
@@ -88,7 +88,7 @@ def save_ac_code(ac_list, premium):
         folderName = id + ". " + ac["title"].strip()
         if not os.path.exists(directory + "\\" + folderName):
             os.makedirs(directory + "\\" + folderName)
-        
+
         completeName = os.path.join(directory + "\\" + folderName, "{}.{}".format("Solution", suff))
         sys.stdout.write(" "*60 + "\r")         
         if not os.path.exists(completeName):
@@ -103,15 +103,15 @@ def save_ac_code(ac_list, premium):
             file.close()
         elif os.path.exists(completeName) and overWrite.lower() == "no":
             print(folderName + " skipped.")
-        
+
         processed_nums += 1
 
         end_time = time.time()
         hours, remainder = divmod(end_time-start_time, 3600)
         minutes, seconds = divmod(remainder, 60)
-        
+
         sys.stdout.write('Processed: ' + str(processed_nums) + ' / ' + str(len(ac_list)) + ' files ( Elapsed Time : {:0>2}:{:0>2}:{:0>2} ) \r'.format(int(hours),int(minutes),int(seconds)))
-        
+
     if premium_count == 0 or premium:
         print("\n" + str(len(ac_list)) + " / " + str(len(ac_list)) + " completed")
     elif premium_count != 0 and not premium:
@@ -121,16 +121,14 @@ def save_ac_code(ac_list, premium):
 def get_ac_problem_list():
     ac_list = []
     url = "https://leetcode.com/api/problems/algorithms/"
-    
-    driver.get(url);
+
+    driver.get(url)
     pageSource = driver.page_source
     jsonObj = json.loads(driver.find_element_by_tag_name("body").text)
-    
+
     for ac in jsonObj["stat_status_pairs"]:
         if ac["status"] == "ac":
-           
             url = "https://leetcode.com/problems/" + ac["stat"]["question__title_slug"] + "/submissions"
-            
             ac_info = {
                 "id" : ac["stat"]["question_id"],
                 "title" : ac["stat"]["question__title"],
@@ -140,7 +138,7 @@ def get_ac_problem_list():
                 "url" : url
                 }
             ac_list.append(ac_info)
-    
+
     return ac_list
 
 
@@ -156,7 +154,7 @@ def login():
         username.send_keys(Account)
         password.send_keys(Password)
 
-        driver.find_element_by_name("signin_btn").click()
+        driver.find_element_by_id("signin_btn").click()
 
         delay = 5 # seconds
         try:
@@ -186,5 +184,5 @@ if __name__ == "__main__":
     elif len(ac_list) > 0:
         print(str(len(ac_list)) + " AC solutions detected...")
         save_ac_code(ac_list, premium)
-    
+
     driver.quit()
