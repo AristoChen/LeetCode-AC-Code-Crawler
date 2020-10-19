@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.keys import Keys
 import json
 import time
 import re
@@ -14,6 +15,8 @@ username = ""
 password = ""
 outputDir = ""
 driver = ""
+
+timeout = 5 # second
 
 suffix = {"cpp": "cpp", "cplusplus": "cpp", "c++": "cpp", "c": "c",
           "java": "java", "python": "py", "py": "py", "c#": "cs",
@@ -46,64 +49,58 @@ def save_ac_code(ac_list, premium):
 
         url = ac["url"]
         difficulty = level[ac["difficulty"]]
-        ac_submission = ""
+        ac_submission_list = ""
 
-        while len(ac_submission) == 0:
+        while len(ac_submission_list) == 0:
             driver.get(url)
             time.sleep(1)
             soup = BeautifulSoup(driver.page_source, "html.parser")
-            ac_submission = soup.find_all("a", text="Accepted")
-        print ac_submission[0]
+            ac_submission_list = soup.find_all("a", text="Accepted")
 
-        driver.get("https://leetcode.com" + ac_submission[0]["href"])
-        soup = BeautifulSoup(driver.page_source, "html.parser")
+        for i in range(len(ac_submission_list)):
+            driver.get("https://leetcode.com" + ac_submission_list[i]["href"])
+            soup = BeautifulSoup(driver.page_source, "html.parser")
 
-        #get submission details
-        testcase = soup.find("span", id = "result_progress").text
-        runtime = soup.find("span", id = "result_runtime").text
-        ranking = soup.find("div", style="line-height: 1em; position: relative;")
-        if ranking:
-            ranking = ranking.text.replace("\n", " ").replace("              ", "")[15:]
-        else:
-            ranking = "Your runtime beats 00.00 % of cpp submissions."
-        submission_detail = ("/*\n" + "Submission Detail:{" +
-                             "\n    Difficulty : " + difficulty + 
-                             "\n    Acceptance Rate : " + str(ac["ac_rate"]*100)[:5] + " %" +
-                             "\n    Runtime : " + runtime + 
-                             "\n    Testcase : " + testcase + " passed" + 
-                             "\n    Ranking : " + ranking + 
-                             "\n}\n*/\n\n")
+            # Get submission details
+            testcase = soup.find("span", id = "result_progress").text
+            runtime = soup.find("span", id = "result_runtime").text
+            ranking = soup.find("div", style="line-height: 1em; position: relative;")
+            if ranking:
+                ranking = ranking.text.replace("\n", " ").replace("              ", "")[15:]
+            else:
+                ranking = "Your runtime beats 00.00 % of submissions."
+            submission_detail = ("/*\n" + "Submission Detail:{" +
+                                "\n    Difficulty : " + difficulty +
+                                "\n    Acceptance Rate : " + str(ac["ac_rate"]*100)[:5] + " %" +
+                                "\n    Runtime : " + runtime +
+                                "\n    Testcase : " + testcase + " passed" +
+                                "\n    Ranking : " + ranking +
+                                "\n}\n*/\n\n")
 
-        #get ac code
-        script = soup.find("script", text = re.compile("submissionCode:"))
-        code = re.findall("submissionCode:\s*'(.+)'", script.string)[0].decode("unicode-escape")
-        suff = suffix_conversion(re.findall("getLangDisplay:\s*'(.+)'", script.string)[0])
+            # Get ac code
+            script = soup.find("script", text = re.compile("submissionCode:"))
+            code = re.findall("submissionCode:\s*'(.+)'", script.string)[0].decode("unicode-escape")
+            suff = suffix_conversion(re.findall("getLangDisplay:\s*'(.+)'", script.string)[0])
 
-        id = str(ac["id"])
-        if len(id) < 2:
-            id = "00" + id
-        elif len(id) < 3:
-            id = "0" + id
+            folderName = str(ac["id"]).zfill(4) + ". " + ac["title"].strip()
+            if not os.path.exists(outputDir + "\\" + folderName):
+                os.makedirs(outputDir + "\\" + folderName)
 
-        folderName = id + ". " + ac["title"].strip()
-        if not os.path.exists(outputDir + "\\" + folderName):
-            os.makedirs(outputDir + "\\" + folderName)
-
-        completeName = os.path.join(
-            outputDir + "\\" + folderName, "{}.{}".format("Solution", suff))
-        sys.stdout.write(" "*60 + "\r")         
-        if not os.path.exists(completeName):
-            print(folderName + " saved.")
-            file = open(completeName, "w")
-            file.write(submission_detail+code)
-            file.close()
-        elif os.path.exists(completeName) and overWrite.lower() == "yes":
-            print(folderName + " over-written.")
-            file = open(completeName, "w")
-            file.write(submission_detail+code)
-            file.close()
-        elif os.path.exists(completeName) and overWrite.lower() == "no":
-            print(folderName + " skipped.")
+            completeName = os.path.join(
+                outputDir + "\\" + folderName, "{}.{}".format("Solution" + str(i).zfill(2), suff))
+            sys.stdout.write(" "*60 + "\r")
+            if not os.path.exists(completeName):
+                print(folderName + " saved.")
+                file = open(completeName, "w")
+                file.write(submission_detail+code)
+                file.close()
+            elif os.path.exists(completeName) and overWrite.lower() == "yes":
+                print(folderName + " over-written.")
+                file = open(completeName, "w")
+                file.write(submission_detail+code)
+                file.close()
+            elif os.path.exists(completeName) and overWrite.lower() == "no":
+                print(folderName + " skipped.")
 
         processed_nums += 1
 
@@ -154,15 +151,26 @@ def login():
         usernameField.send_keys(username)
         passwordField.send_keys(password)
 
-        time.sleep(1)
-        driver.find_element_by_id("signin_btn").click()
+        while True:
+            try:
+                WebDriverWait(driver, timeout).until(
+                    EC.presence_of_element_located((By.ID, "signin_btn")))
+                driver.find_element_by_id("signin_btn").click()
+                break
+            except:
+                print("Unexpected error: " + str(sys.exc_info()[0]))
+                time.sleep(1)
 
-        delay = 5 # seconds
-        try:
-            myElem = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.ID, "home-app")))
-            #print "Page is ready!"
-        except TimeoutException:
-            print "Loading took too much time!"
+        while True:
+            try:
+                WebDriverWait(driver, timeout).until(
+                    EC.presence_of_element_located((By.ID, "home-app")))
+                break
+            except TimeoutException:
+                print("Loading took too much time!")
+    else:
+        print("Username or password is empty")
+        sys.exit(1)
 
 def premium_account_check():
     soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -183,8 +191,12 @@ if __name__ == "__main__":
         password = conf["Password"]
         outputDir = conf["OutputDir"]
         driverPath = conf["ChromedriverPath"]
-        driver = webdriver.Chrome(driverPath)
 
+    if not os.path.isdir(outputDir):
+        print("Output directory not found")
+        sys.exit(1)
+
+    driver = webdriver.Chrome(driverPath)
     login()
     premium  = premium_account_check()
     ac_list = get_ac_problem_list()
