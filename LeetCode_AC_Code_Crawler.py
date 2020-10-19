@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
 import json
 import time
 import re
@@ -196,7 +197,11 @@ if __name__ == "__main__":
         print("Output directory not found")
         sys.exit(1)
 
-    driver = webdriver.Chrome(driverPath)
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--log-level=3')
+    driver = webdriver.Chrome(driverPath, chrome_options=chrome_options)
+
     login()
     premium  = premium_account_check()
     ac_list = get_ac_problem_list()
