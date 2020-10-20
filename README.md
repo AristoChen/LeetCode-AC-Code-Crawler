@@ -22,7 +22,8 @@ You have to modify variables in `conf.json`.
     "Username": "YOUR_USERNAME",
     "Password": "YOUR_PASSWORD",
     "OutputDir": "THE_ABSOLUTE_PATH_THAT_YOU_WANT_TO_SAVE_FILES",
-    "ChromedriverPath": "THE_ABSOLUTE_PATH_OF_CHROMEDRIVER"
+    "ChromedriverPath": "THE_ABSOLUTE_PATH_OF_CHROMEDRIVER",
+    "Headless": true
 }
 ```
 

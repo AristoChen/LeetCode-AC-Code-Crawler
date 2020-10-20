@@ -192,14 +192,16 @@ if __name__ == "__main__":
         password = conf["Password"]
         outputDir = conf["OutputDir"]
         driverPath = conf["ChromedriverPath"]
+        headless = conf["Headless"]
 
     if not os.path.isdir(outputDir):
         print("Output directory not found")
         sys.exit(1)
 
     chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--log-level=3')
+    if headless == True:
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--log-level=3')
     driver = webdriver.Chrome(driverPath, chrome_options=chrome_options)
 
     login()
