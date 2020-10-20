@@ -16,6 +16,7 @@ username = ""
 password = ""
 outputDir = ""
 driver = ""
+overwrite = False
 
 timeout = 5 # second
 
@@ -27,14 +28,6 @@ suffix = {"cpp": "cpp", "cplusplus": "cpp", "c++": "cpp", "c": "c",
 def save_ac_code(ac_list, premium):
     premium_count = 0
     processed_nums = 0
-
-    print("Do you want to over write all files if they exists? yes/no")
-    overWrite = raw_input()
-
-    while overWrite.lower() != "yes" and overWrite.lower() != "no":
-        print("Error:Please type 'yes' or 'no'")
-        print("Do you want to over write all files if they exists? yes/no")
-        overWrite = raw_input()
 
     level = ["None", "Easy", "Medium", "Hard"]
 
@@ -95,13 +88,14 @@ def save_ac_code(ac_list, premium):
                 file = open(completeName, "w")
                 file.write(submission_detail+code)
                 file.close()
-            elif os.path.exists(completeName) and overWrite.lower() == "yes":
-                print(folderName + " over-written.")
-                file = open(completeName, "w")
-                file.write(submission_detail+code)
-                file.close()
-            elif os.path.exists(completeName) and overWrite.lower() == "no":
-                print(folderName + " skipped.")
+            else:
+                if overwrite == True:
+                    print(folderName + " overwritten.")
+                    file = open(completeName, "w")
+                    file.write(submission_detail+code)
+                    file.close()
+                else:
+                    print(folderName + " skipped.")
 
         processed_nums += 1
 
@@ -193,6 +187,7 @@ if __name__ == "__main__":
         outputDir = conf["OutputDir"]
         driverPath = conf["ChromedriverPath"]
         headless = conf["Headless"]
+        overwrite = conf["Overwrite"]
 
     if not os.path.isdir(outputDir):
         print("Output directory not found")
