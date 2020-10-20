@@ -33,6 +33,3 @@ I tried this project on Windows10 & Ubuntu, and it works fine.
 
 #### Notice 
 If you have multiple sessions in your account, switch to the session that you want to crawl ac codes before execute.
-
-#### To Do
-1. Currently, this project will only save the latest accepted submission code.
