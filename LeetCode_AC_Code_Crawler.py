@@ -20,10 +20,10 @@ overwrite = False
 
 timeout = 5 # second
 
-suffix = {"cpp": "cpp", "cplusplus": "cpp", "c++": "cpp", "c": "c",
-          "java": "java", "python": "py", "py": "py", "c#": "cs",
-          "csharp": "cs", "javascript": "js", "js": "js", "ruby": "rb",
-          "rb": "rb", "go": "go", "golang": "go", "swift": "swift"}
+suffix = {"cpp": "cpp", "c": "c", "csharp": "cs", "golang": "go",
+          "java": "java", "javascript": "js", "kotlin": "kt", "php": "php",
+          "python": "py", "python3": "py", "ruby": "rb", "rust": "rs",
+          "scala": "scala", "swift": "swift", "typescript": "ts"}
 
 def save_ac_code(ac_list, premium):
     premium_count = 0
