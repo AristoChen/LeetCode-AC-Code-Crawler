@@ -192,6 +192,9 @@ if __name__ == "__main__":
     if not os.path.isdir(outputDir):
         print("Output directory not found")
         sys.exit(1)
+    if not os.path.isfile(driverPath):
+        print("Chromedriver not found")
+        sys.exit(1)
 
     chrome_options = Options()
     if headless == True:
