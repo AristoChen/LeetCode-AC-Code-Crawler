@@ -81,22 +81,23 @@ def save_ac_code(ac_list, premium):
             if not os.path.exists(outputDir + "\\" + folderName):
                 os.makedirs(outputDir + "\\" + folderName)
 
+            fileName = "{}.{}".format("Solution" + str(i).zfill(2), suff)
             completeName = os.path.join(
-                outputDir + "\\" + folderName, "{}.{}".format("Solution" + str(i).zfill(2), suff))
+                outputDir + "\\" + folderName, fileName)
             sys.stdout.write(" "*60 + "\r")
             if not os.path.exists(completeName):
-                print(folderName + " saved.")
+                print(folderName + "\\" + fileName + " saved.")
                 file = codecs.open(completeName, "w", encoding='utf8')
                 file.write(submission_detail+code)
                 file.close()
             else:
                 if overwrite == True:
-                    print(folderName + " overwritten.")
+                    print(folderName + "\\" + fileName + " overwritten.")
                     file = open(completeName, "w")
                     file.write(submission_detail+code)
                     file.close()
                 else:
-                    print(folderName + " skipped.")
+                    print(folderName + "\\" + fileName + " skipped.")
 
         processed_nums += 1
 
