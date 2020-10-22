@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
+import codecs
 import json
 import time
 import re
@@ -73,7 +74,7 @@ def save_ac_code(ac_list, premium):
 
             # Get ac code
             script = soup.find("script", text = re.compile("submissionCode:"))
-            code = re.findall("submissionCode:\s*'(.+)'", script.string)[0].decode("unicode-escape")
+            code = re.findall("submissionCode:\s*'(.+)'", script.string)[0]
             suff = suffix_conversion(re.findall("getLangDisplay:\s*'(.+)'", script.string)[0])
 
             folderName = str(ac["id"]).zfill(4) + ". " + ac["title"].strip()
@@ -85,7 +86,7 @@ def save_ac_code(ac_list, premium):
             sys.stdout.write(" "*60 + "\r")
             if not os.path.exists(completeName):
                 print(folderName + " saved.")
-                file = open(completeName, "w")
+                file = codecs.open(completeName, "w", encoding='utf8')
                 file.write(submission_detail+code)
                 file.close()
             else:
