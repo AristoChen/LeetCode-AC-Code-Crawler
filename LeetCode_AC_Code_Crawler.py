@@ -13,6 +13,9 @@ import re
 import os
 import sys
 
+if sys.version_info > (3, 5):
+    import chromedriver_autoinstaller
+
 username = ""
 password = ""
 outputDir = ""
@@ -187,22 +190,34 @@ if __name__ == "__main__":
         username = conf["Username"]
         password = conf["Password"]
         outputDir = conf["OutputDir"]
-        driverPath = conf["ChromedriverPath"]
+        autoInstall = conf["Chromedriver"]["AutoInstall"]
+        driverPath = conf["Chromedriver"]["Path"]
         headless = conf["Headless"]
         overwrite = conf["Overwrite"]
 
     if not os.path.isdir(outputDir):
-        print("Output directory not found")
+        print("Output directory: \"{0}\" not found".format(outputDir))
         sys.exit(1)
-    if not os.path.isfile(driverPath):
-        print("Chromedriver not found")
+
+    if sys.version_info > (3, 5) and autoInstall:
+        print("Checking chromedriver...")
+        try:
+            chromedriver_autoinstaller.install()
+        except:
+            print("Error using chromedriver_autoinstaller")
+            sys.exit(1)
+    elif not os.path.isfile(driverPath):
+        print("Chromedriver path: \"{0}\" not found".format(driverPath))
         sys.exit(1)
 
     chrome_options = Options()
     if headless == True:
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--log-level=3')
-    driver = webdriver.Chrome(driverPath, chrome_options=chrome_options)
+    if sys.version_info > (3, 5) and autoInstall:
+        driver = webdriver.Chrome(chrome_options=chrome_options)
+    else:
+        driver = webdriver.Chrome(driverPath, chrome_options=chrome_options)
 
     login()
     premium  = premium_account_check()
