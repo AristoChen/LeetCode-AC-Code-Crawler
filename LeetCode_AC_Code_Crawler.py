@@ -77,7 +77,7 @@ def save_ac_code(ac_list, premium):
 
             # Get ac code
             script = soup.find("script", text = re.compile("submissionCode:"))
-            code = re.findall("submissionCode:\s*'(.+)'", script.string)[0]
+            code = re.findall("submissionCode:\s*'(.+)'", script.string)[0].decode("unicode-escape")
             suff = suffix_conversion(re.findall("getLangDisplay:\s*'(.+)'", script.string)[0])
 
             folderName = str(ac["id"]).zfill(4) + ". " + ac["title"].strip()
