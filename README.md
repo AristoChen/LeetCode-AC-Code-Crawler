@@ -1,28 +1,40 @@
 # LeetCode-AC-Code-Crawler
 
-#### Origin
-I've been solving LeetCode problems recently, and when I realized that why not put my solutions on github, I found it time consuming to copy and paste hundreds of problems that I solved, so I decided to write a crawler instead.
+### Origin
 
-At the begining, I found a useful dependency in python called ```BeautifulSoup```, but it seems that it is not able to deal with dynamic website, which means that if some elements shown in a website is controlled by javascript. After serching for a while, I found ```selenium```, which automatically controll website like a human, but it seems that it is unefficient to use selenium to parse data in html, so I combine BeautifulSoup and selenium to finish this project.
+It is time consuming to copy and paste hundreds of problems that I solved on LeetCode, so I decided to write a crawler instead.
 
-#### Install Dependencies
+At the begining, I found a useful dependency in python called ```BeautifulSoup```, but it seems that it is not able to deal with dynamic website, which means that if some elements shown in a website is controlled by javascript. After searching for a while, I found ```selenium```, which automatically controll website like a human, but it seems that it is unefficient to use selenium to parse data in html, so I combine BeautifulSoup and selenium to finish this project.
+
+### Install Dependencies
+
 ```
-# pip install bs4
-# pip install beautifulsoup
-# pip install selenium 
+# python setup.py install
+```
+or
+
+```
+# python3 setup.py install
 ```
 
-#### Install ChromeDriver 
-This project use [Chromedriver](http://chromedriver.chromium.org/) in selenium, before running this project, you have to add the downloaded executable file to PATH enviroment variable.
+### Install ChromeDriver
 
-#### Setting
+This project use [Chromedriver](http://chromedriver.chromium.org/) in selenium, before running this project, you have to add the downloaded executable file to PATH enviroment variable, or if your python version is greater than 3.5, than you can enable chromedriver auto install by setting `true` in `["Chromedriver"]["AutoInstall"]` in `conf.json`.
+
+Note: [Chromedriver-autoinstaller](https://github.com/yeongbin-jo/python-chromedriver-autoinstaller) is a open source project, it is indeed convenient, but still some limitations, and if you having issue using it, maybe consider manually download Chromedriver by yourself.
+
+### Setting
+
 You have to modify variables in `conf.json`.
 ```json
 {
     "Username": "YOUR_USERNAME",
     "Password": "YOUR_PASSWORD",
     "OutputDir": "THE_ABSOLUTE_PATH_THAT_YOU_WANT_TO_SAVE_FILES",
-    "ChromedriverPath": "THE_ABSOLUTE_PATH_OF_CHROMEDRIVER",
+    "Chromedriver": {
+        "AutoInstall": false,
+        "Path": "THE_ABSOLUTE_PATH_OF_CHROMEDRIVER"
+    },
     "Headless": true,
     "Overwrite": false
 }
