@@ -9,19 +9,16 @@ At the begining, I found a useful dependency in python called ```BeautifulSoup``
 ### Install Dependencies
 
 ```
-# python setup.py install
-```
-or
-
-```
 # python3 setup.py install
 ```
+
+Note: python2 is now not supported, unless there is a need. Feel free to let me know.
 
 ### Install ChromeDriver
 
 This project use [Chromedriver](http://chromedriver.chromium.org/) in selenium, before running this project, you have to add the downloaded executable file to PATH enviroment variable, or if your python version is greater than 3.5, than you can enable chromedriver auto install by setting `true` in `["Chromedriver"]["AutoInstall"]` in `conf.json`.
 
-Note: [Chromedriver-autoinstaller](https://github.com/yeongbin-jo/python-chromedriver-autoinstaller) is a open source project, it is indeed convenient, but still some limitations, and if you having issue using it, maybe consider manually download Chromedriver by yourself.
+Note: [Chromedriver-autoinstaller](https://github.com/yeongbin-jo/python-chromedriver-autoinstaller) is a open source project, it is indeed convenient, but there are still some limitations, and if you are having issue using it, maybe consider manually download Chromedriver by yourself.
 
 ### Setting
 
@@ -46,4 +43,5 @@ After executing the project, each LeetCode problem that you've solved will have 
 I tried this project on Windows10 & Ubuntu, and it works fine. 
 
 #### Notice 
-If you have multiple sessions in your account, switch to the session that you want to crawl ac codes before execute.
+- If you have multiple sessions in your account, switch to the session that you want to crawl ac codes before execute.
+- If you set the `Headless` to `true`, and keep seeing `Loading took too much time!` message, maybe it's the Google reCAPTCHA causing the problem, this software is not able to handle this problem, you need to set the `Headless` to `false`, run the software again and then manually pass the Google reCAPTCHA testing.
