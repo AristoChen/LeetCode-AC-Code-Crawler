@@ -14,6 +14,7 @@ import os
 import sys
 
 if sys.version_info > (3, 5):
+    from selenium.webdriver.chrome.service import Service
     import chromedriver_autoinstaller
 
 username = ""
@@ -77,7 +78,8 @@ def save_ac_code(ac_list, premium):
 
             # Get ac code
             script = soup.find("script", text = re.compile("submissionCode:"))
-            code = re.findall("submissionCode:\s*'(.+)'", script.string)[0].decode("unicode-escape")
+            code = re.findall("submissionCode:\s*'(.+)'",
+                              script.string)[0].encode().decode("unicode-escape")
             suff = suffix_conversion(re.findall("getLangDisplay:\s*'(.+)'", script.string)[0])
 
             folderName = str(ac["id"]).zfill(4) + ". " + ac["title"].strip()
@@ -121,7 +123,7 @@ def get_ac_problem_list():
     url = "https://leetcode.com/api/problems/algorithms/"
 
     driver.get(url)
-    jsonObj = json.loads(driver.find_element_by_tag_name("body").text)
+    jsonObj = json.loads(driver.find_element(By.TAG_NAME, "body").text)
 
     for ac in jsonObj["stat_status_pairs"]:
         if ac["status"] == "ac":
@@ -145,8 +147,8 @@ def login():
     if username and password:
         driver.get(login_url)
 
-        usernameField = driver.find_element_by_id("id_login")
-        passwordField = driver.find_element_by_id("id_password")
+        usernameField = driver.find_element(By.ID, "id_login")
+        passwordField = driver.find_element(By.ID, "id_password")
         
         usernameField.send_keys(username)
         passwordField.send_keys(password)
@@ -155,7 +157,7 @@ def login():
             try:
                 WebDriverWait(driver, timeout).until(
                     EC.presence_of_element_located((By.ID, "signin_btn")))
-                driver.find_element_by_id("signin_btn").click()
+                driver.find_element(By.ID, "signin_btn").click()
                 break
             except:
                 print("Unexpected error: " + str(sys.exc_info()[0]))
@@ -211,13 +213,18 @@ if __name__ == "__main__":
         sys.exit(1)
 
     chrome_options = Options()
+    chrome_options.add_argument('disable-infobars')
+    chrome_options.add_argument('--disable-extensions')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--no-sandbox')
     if headless == True:
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--log-level=3')
     if sys.version_info > (3, 5) and autoInstall:
         driver = webdriver.Chrome(chrome_options=chrome_options)
     else:
-        driver = webdriver.Chrome(driverPath, chrome_options=chrome_options)
+        driver = webdriver.Chrome(service=Service(driverPath), options=chrome_options)
 
     login()
     premium  = premium_account_check()
