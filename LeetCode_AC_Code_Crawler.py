@@ -63,18 +63,28 @@ def save_ac_code(ac_list, premium):
             # Get submission details
             testcase = soup.find("span", id = "result_progress").text
             runtime = soup.find("span", id = "result_runtime").text
-            ranking = soup.find("div", style="line-height: 1em; position: relative;")
-            if ranking:
-                ranking = ranking.text.replace("\n", " ").replace("              ", "")[15:]
-            else:
-                ranking = "Your runtime beats 00.00 % of submissions."
+            memory = soup.find("span", id = "result_memory").text
+            ranking_list = soup.find_all("div", style="line-height: 1em; position: relative;")
+            if len(ranking_list) == 2:
+                ranking_runtime = ranking_list[0].text.replace("\n", " ").replace("              ", "")[15:]
+                ranking_memory = ranking_list[1].text.replace("\n", " ").replace("              ", "")[15:]
+            elif len(ranking_list) == 1:
+                ranking_runtime = ranking_list[0].text.replace("\n", " ").replace("              ", "")[15:]
+                ranking_memory = "Your memory usage beats 00.00 % of submissions."
+            elif len(ranking_list) == 0:
+                ranking_runtime = "Your runtime beats 00.00 % of submissions."
+                ranking_memory = "Your memory usage beats 00.00 % of submissions."
+
             submission_detail = ("/*\n" + "Submission Detail:{" +
-                                "\n    Difficulty : " + difficulty +
-                                "\n    Acceptance Rate : " + str(ac["ac_rate"]*100)[:5] + " %" +
-                                "\n    Runtime : " + runtime +
-                                "\n    Testcase : " + testcase + " passed" +
-                                "\n    Ranking : " + ranking +
-                                "\n}\n*/\n\n")
+                                 "\n    Difficulty : " + difficulty +
+                                 "\n    Acceptance Rate : " + str(ac["ac_rate"]*100)[:5] + " %" +
+                                 "\n    Runtime : " + runtime +
+                                 "\n    Memory Usage : " + memory +
+                                 "\n    Testcase : " + testcase + " passed" +
+                                 "\n    Ranking : " +
+                                 "\n        " + ranking_runtime +
+                                 "\n        " + ranking_memory +
+                                 "\n}\n*/\n\n")
 
             # Get ac code
             script = soup.find("script", text = re.compile("submissionCode:"))
